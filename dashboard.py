@@ -68,7 +68,7 @@ else:
         """, unsafe_allow_html=True)
 
 # Data Table and Chart
-st.subheader("📄 Raw Data")
+st.subheader("📄 Data")
 st.dataframe(df)
 
 st.subheader("📈 Total Over Time")
