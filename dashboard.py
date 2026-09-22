@@ -17,7 +17,7 @@ data = sheet.get_all_records()
 df = pd.DataFrame(data)
 
 # Title
-st.title("📊 Google Sheets Dashboard")
+st.title("📊 Personal Finance Dashboard")
 
 # Convert Timestamp to datetime
 df["Timestamp"] = pd.to_datetime(df["Timestamp"], format="%d/%m/%Y %H:%M:%S", errors="coerce")
@@ -77,70 +77,17 @@ else:
         """, unsafe_allow_html=True)
 
 # ----- Altair: Total Over Time -----
-st.subheader("📈 Total Portfolio Growth — First Day to Now")
-
+st.subheader("📈 Total Over Time")
 df["Total"] = pd.to_numeric(df["Total"], errors="coerce")
-
-# Keep only valid records and sort chronologically
-chart_df = (
-    df.dropna(subset=["Total", "Timestamp"])
-      .sort_values("Timestamp")
-      .copy()
+total_chart = alt.Chart(df.dropna(subset=["Total", "Timestamp"])).mark_line(color="blue").encode(
+    x=alt.X("Timestamp:T", title="Date"),
+    y=alt.Y("Total:Q", title="Total Value ($)", scale=alt.Scale(zero=False))
+).properties(
+    width="container",
+    height=300,
+    title="Total Portfolio Trend"
 )
-
-# First recorded value
-first_value = chart_df["Total"].iloc[0]
-
-# Calculate growth relative to the first day
-chart_df["Growth %"] = (
-    (chart_df["Total"] - first_value) / first_value
-) * 100
-
-total_chart = (
-    alt.Chart(chart_df)
-    .mark_line(
-        color="blue",
-        strokeWidth=3
-    )
-    .encode(
-        x=alt.X(
-            "Timestamp:T",
-            title="Date"
-        ),
-        y=alt.Y(
-            "Total:Q",
-            title="Portfolio Value ($)",
-            scale=alt.Scale(zero=False)
-        ),
-        tooltip=[
-            alt.Tooltip(
-                "Timestamp:T",
-                title="Date",
-                format="%d %b %Y"
-            ),
-            alt.Tooltip(
-                "Total:Q",
-                title="Portfolio Value",
-                format="$,.2f"
-            ),
-            alt.Tooltip(
-                "Growth %:Q",
-                title="Growth Since First Day",
-                format="+.2f%"
-            )
-        ]
-    )
-    .properties(
-        height=350,
-        title=f"Portfolio Growth: ${first_value:,.2f} → ${chart_df['Total'].iloc[-1]:,.2f}"
-    )
-    .interactive()
-)
-
-st.altair_chart(
-    total_chart,
-    use_container_width=True
-)
+st.altair_chart(total_chart, use_container_width=True)
 
 # ----- Altair: Platform Trend Viewer -----
 st.subheader("🏦 Account Trend Viewer")
