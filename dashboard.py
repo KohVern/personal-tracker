@@ -123,6 +123,11 @@ pie_chart = (
     .encode(
         theta=alt.Theta(field="value", type="quantitative"),
         color=alt.Color(field="category", type="nominal"),
+        tooltip=[
+            alt.Tooltip("category:N", title="Category"),
+            alt.Tooltip("value:Q", title="Value", format="$,.2f"),
+            alt.Tooltip("percentage:Q", title="Percentage", format=".2f%")
+        ],
     )
 )
 
