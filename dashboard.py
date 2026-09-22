@@ -130,14 +130,17 @@ base = alt.Chart(source).encode(
     ]
 )
 
-# Create arc and text layers
-pie_arc = base.mark_arc(outerRadius=100, innerRadius=40)  # Optional: innerRadius makes it a donut chart
-text = base.mark_text(radius=120, size=13).encode(text="label:N")
+# Create arc and text layers (slightly compact radius for mobile screens)
+pie_arc = base.mark_arc(outerRadius=80, innerRadius=40) 
+text = base.mark_text(radius=100, size=12).encode(text="label:N")
 
-# Combine layers
-pie_chart = pie_arc + text
+# Combine layers and enforce responsive container properties
+pie_chart = (pie_arc + text).properties(
+    width="container",
+    height=280
+)
 
-# 4. Render
+# Render in Streamlit
 st.altair_chart(pie_chart, use_container_width=True)
 
 # ----- Data Table -----
