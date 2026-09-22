@@ -125,7 +125,7 @@ investment_value = sum(
 )
 
 source = pd.DataFrame(
-    {"category": ["Savings", "Investments"], "value": [savings_value, investment_value]}
+    {"category": ["Savings", "Investments"], "value": [2, 1]}
 )
 
 # 2. Create Altair arc/pie chart
