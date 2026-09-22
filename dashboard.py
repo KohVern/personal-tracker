@@ -116,22 +116,28 @@ source = pd.DataFrame(
     {"category": ["Savings", "Investments"], "value": [savings_val, investments_val]}
 )
 
-# 2. Create Altair arc/pie chart
-pie_chart = (
-    alt.Chart(source)
-    .mark_arc()
-    .encode(
-        theta=alt.Theta(field="value", type="quantitative"),
-        color=alt.Color(field="category", type="nominal"),
-        tooltip=[
-            alt.Tooltip("category:N", title="Category"),
-            alt.Tooltip("value:Q", title="Value", format="$,.2f"),
-            alt.Tooltip("percentage:Q", title="Percentage", format=".2f%")
-        ],
-    )
+source["percentage"] = (source["value"] / latest_val) * 100
+source["label"] = source["percentage"].map("{:.1f}%".format)
+
+# Define base chart with encodings & tooltips
+base = alt.Chart(source).encode(
+    theta=alt.Theta(field="value", type="quantitative", stack=True),
+    color=alt.Color(field="category", type="nominal"),
+    tooltip=[
+        alt.Tooltip("category:N", title="Category"),
+        alt.Tooltip("value:Q", title="Amount"),
+        alt.Tooltip("percentage:Q", title="Share (%)", format=".1f")
+    ]
 )
 
-# 3. Render in Streamlit using st.altair_chart
+# Create arc and text layers
+pie_arc = base.mark_arc(outerRadius=100, innerRadius=40)  # Optional: innerRadius makes it a donut chart
+text = base.mark_text(radius=120, size=13).encode(text="label:N")
+
+# Combine layers
+pie_chart = pie_arc + text
+
+# 4. Render
 st.altair_chart(pie_chart, use_container_width=True)
 
 # ----- Data Table -----
