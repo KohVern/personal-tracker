@@ -105,6 +105,42 @@ account_chart = alt.Chart(df.dropna(subset=["Timestamp", selected_account])).mar
 )
 st.altair_chart(account_chart, use_container_width=True)
 
+# ----- Altair: Distribution between Savings and Investments -----
+latest_row = df.iloc[-1]
+
+savings_value = sum(
+    pd.to_numeric(latest_row[account], errors="coerce")
+    for account in ["OCBC", "DBS", "SC Bank", "Maribank"]
+    if account in df.columns
+)
+
+investment_accounts = [
+    col for col in df.columns
+    if col not in ["Timestamp", "Total", "OCBC", "DBS", "SC Bank", "Maribank"]
+]
+
+investment_value = sum(
+    pd.to_numeric(latest_row[account], errors="coerce")
+    for account in investment_accounts
+)
+
+source = pd.DataFrame(
+    {"category": ["Savings", "Investments"], "value": [savings_value, investment_value]}
+)
+
+# 2. Create Altair arc/pie chart
+pie_chart = (
+    alt.Chart(source)
+    .mark_arc()
+    .encode(
+        theta=alt.Theta(field="value", type="quantitative"),
+        color=alt.Color(field="category", type="nominal"),
+    )
+)
+
+# 3. Render in Streamlit using st.altair_chart
+st.altair_chart(pie_chart, use_container_width=True)
+
 # ----- Data Table -----
 st.subheader("📄 Data")
 st.dataframe(df)
